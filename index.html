@@ -126,56 +126,90 @@ canvas { display: block; }
 #touch-ui { position: fixed; inset: 0; z-index: 50; pointer-events: none; display: none; }
 @media (pointer: coarse) { #touch-ui { display: block; } #controls-info { display: none; } }
 
-.touch-pad {
-  position: absolute;
+/* Left: analog joystick */
+#touch-left{
+  position:absolute;
+  left: calc(18px + env(safe-area-inset-left));
   bottom: calc(18px + env(safe-area-inset-bottom));
-  width: 210px; height: 210px;
-  pointer-events: auto;
+  width: 220px; height: 220px;
+  pointer-events:auto;
 }
-#touch-left { left: calc(18px + env(safe-area-inset-left)); }
-#touch-right { right: calc(18px + env(safe-area-inset-right)); }
-
-.touch-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 10px;
-  width: 100%; height: 100%;
-}
-
-.tbtn {
-  border: 1px solid rgba(0,255,200,0.35);
-  background: rgba(0,255,200,0.08);
-  color: rgba(255,255,255,0.85);
-  font-family: 'Courier New', monospace;
-  font-size: 18px;
-  border-radius: 14px;
+#joystick{ position:relative; width:220px; height:220px; }
+#joy-base{
+  position:absolute; inset:0;
+  border-radius:50%;
+  border:2px solid rgba(0,255,200,0.35);
+  background: rgba(0,255,200,0.06);
+  box-shadow: 0 0 18px rgba(0,255,200,0.08) inset;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: none;
 }
-.tbtn:active { background: rgba(0,255,200,0.18); }
-
-#fire-btn {
-  position: absolute;
-  right: calc(22px + env(safe-area-inset-right));
-  bottom: calc(250px + env(safe-area-inset-bottom));
-  width: 170px; height: 64px;
-  pointer-events: auto;
-  letter-spacing: 3px;
+#joy-ring{
+  position:absolute;
+  left:50%; top:50%; transform:translate(-50%,-50%);
+  width:120px; height:120px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,0.18);
 }
-#fire-btn .tbtn { width: 100%; height: 100%; font-size: 20px; }
+#joy-stick{
+  position:absolute;
+  left:50%; top:50%; transform:translate(-50%,-50%);
+  width:84px; height:84px;
+  border-radius:50%;
+  border:2px solid rgba(0,255,200,0.55);
+  background: rgba(0,255,200,0.14);
+  box-shadow: 0 0 18px rgba(0,255,200,0.25);
+  touch-action:none;
+}
 
-.touch-hint {
-  position: absolute;
-  left: 50%; transform: translateX(-50%);
-  bottom: calc(230px + env(safe-area-inset-bottom));
-  color: rgba(255,255,255,0.35);
-  font-size: 11px;
-  letter-spacing: 1px;
-  pointer-events: none;
+/* Right: clustered turn + fire (close & easy) */
+#touch-actions{
+  position:absolute;
+  right: calc(18px + env(safe-area-inset-right));
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  display:flex;
+  gap: 12px;
+  pointer-events:auto;
+}
+
+.tbtn{
+  border:2px solid rgba(0,255,200,0.40);
+  background: rgba(0,255,200,0.10);
+  color: rgba(255,255,255,0.90);
+  font-family: 'Courier New', monospace;
+  border-radius:16px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:none;
+}
+.tbtn:active{ background: rgba(0,255,200,0.22); }
+
+.tbtn.turn{
+  width:86px; height:76px;
+  font-size:38px; font-weight:800;
+  line-height:1;
+  text-shadow: 0 0 12px rgba(0,255,200,0.40);
+}
+.tbtn.fire{
+  width:150px; height:76px;
+  font-size:22px; font-weight:800;
+  letter-spacing:3px;
+}
+
+.touch-hint{
+  position:absolute;
+  left:50%; transform:translateX(-50%);
+  bottom: calc(255px + env(safe-area-inset-bottom));
+  color: rgba(255,255,255,0.30);
+  font-size:11px;
+  letter-spacing:1px;
+  pointer-events:none;
+}
+
+@media (max-width: 900px) {
+  .hp-container { width: 220px; }
 }
 </style>
 </head>
@@ -231,36 +265,21 @@ canvas { display: block; }
 
 <!-- Touch controls (iPad / mobile) -->
 <div id="touch-ui" aria-hidden="true">
-  <div class="touch-pad" id="touch-left">
-    <div class="touch-grid">
-      <div></div>
-      <button class="tbtn" data-hold="ArrowUp">▲</button>
-      <div></div>
-      <button class="tbtn" data-hold="ArrowLeft">◀</button>
-      <div></div>
-      <button class="tbtn" data-hold="ArrowRight">▶</button>
-      <div></div>
-      <button class="tbtn" data-hold="ArrowDown">▼</button>
-      <div></div>
+  <div id="touch-left">
+    <div id="joystick">
+      <div id="joy-base"></div>
+      <div id="joy-ring"></div>
+      <div id="joy-stick"></div>
     </div>
   </div>
 
-  <div class="touch-pad" id="touch-right">
-    <div class="touch-grid">
-      <div></div>
-      <button class="tbtn" data-hold="KeyZ">⟲</button>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <button class="tbtn" data-hold="KeyX">⟳</button>
-      <div></div>
-    </div>
+  <div id="touch-actions">
+    <button class="tbtn turn" data-hold="KeyZ" aria-label="Turn Left">⟲</button>
+    <button class="tbtn fire" data-shoot="1" aria-label="Fire">FIRE</button>
+    <button class="tbtn turn" data-hold="KeyX" aria-label="Turn Right">⟳</button>
   </div>
 
-  <div id="fire-btn"><button class="tbtn" data-shoot="1">FIRE</button></div>
-  <div class="touch-hint">Touch: Move / Turn / Fire</div>
+  <div class="touch-hint">Touch: Analog Move / Turn / Fire</div>
 </div>
 
 <div id="game-over-screen">
@@ -291,8 +310,8 @@ canvas { display: block; }
   const ENEMY_AIM_SPREAD = 0.18;       // radians of enemy inaccuracy
   const PLAYER_HOMING_STRENGTH = 1.5;  // gentle homing
 
-  // ★変更点：旋回は「入力専用」にして、ゆっくりめに
-  const PLAYER_TURN_SPEED = 2.2;       // radians/sec (ゆっくり)
+  // ★旋回はゆっくりめ
+  const PLAYER_TURN_SPEED = 2.2;       // radians/sec
 
   // === STATE ===
   let scene, camera, renderer;
@@ -313,6 +332,10 @@ canvas { display: block; }
 
   // Camera smoothing
   let cameraAngle = 0;
+
+  // Touch joystick (iPad/mobile)
+  let touchMoveX = 0; // -1..1 (left/right)
+  let touchMoveY = 0; // -1..1 (back/forward)
 
   // === DOM ===
   const playerHPBar = document.getElementById('player-hp-bar');
@@ -372,8 +395,16 @@ canvas { display: block; }
     enemyAngle = 0;
     playerFlashTimer = 0;
     enemyFlashTimer = 0;
-    playerFacingAngle = 0;
-    cameraAngle = 0;
+
+    // ★開始時：敵（+Z）を正面にするため、こちらは -Z 向き（= PI）
+    playerFacingAngle = Math.PI;
+    cameraAngle = Math.PI;
+    player.rotation.y = Math.PI;
+
+    // Touch
+    touchMoveX = 0;
+    touchMoveY = 0;
+
     shootPressed = false;
     for (const k in keys) keys[k] = false;
     updateHPDisplay();
@@ -572,6 +603,7 @@ canvas { display: block; }
     // iOS/iPad: stop page scroll / gesture zoom while playing
     document.addEventListener('touchmove', (e) => { if (gameState === 'playing') e.preventDefault(); }, { passive: false });
     document.addEventListener('gesturestart', (e) => e.preventDefault());
+
     document.addEventListener('keydown', (e) => {
       keys[e.code] = true;
       if (e.code === 'Space') { e.preventDefault(); shootPressed = true; }
@@ -596,7 +628,7 @@ canvas { display: block; }
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // Touch buttons
+    // Touch buttons + joystick
     const touchUI = document.getElementById('touch-ui');
     if (touchUI) {
       const onPress = (el, down) => {
@@ -621,8 +653,74 @@ canvas { display: block; }
         btn.addEventListener('pointercancel', up);
         btn.addEventListener('pointerleave', up);
       };
-
       touchUI.querySelectorAll('.tbtn').forEach(bindBtn);
+
+      // Analog joystick
+      const joy = document.getElementById('joystick');
+      const stick = document.getElementById('joy-stick');
+      if (joy && stick) {
+        let active = false;
+        let centerX = 0, centerY = 0;
+        const maxR = 62; // pixels
+
+        const setStick = (dx, dy) => {
+          const r = Math.hypot(dx, dy);
+          const cl = r > maxR ? (maxR / r) : 1;
+          const x = dx * cl;
+          const y = dy * cl;
+
+          stick.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+
+          // Normalize: up (negative y) => forward (+1)
+          touchMoveX = x / maxR;
+          touchMoveY = (-y) / maxR;
+
+          // deadzone
+          const dz = 0.12;
+          if (Math.abs(touchMoveX) < dz) touchMoveX = 0;
+          if (Math.abs(touchMoveY) < dz) touchMoveY = 0;
+        };
+
+        const resetStick = () => {
+          stick.style.transform = `translate(-50%, -50%)`;
+          touchMoveX = 0;
+          touchMoveY = 0;
+        };
+
+        const updateCenter = () => {
+          const rect = joy.getBoundingClientRect();
+          centerX = rect.left + rect.width / 2;
+          centerY = rect.top + rect.height / 2;
+        };
+
+        const down = (e) => {
+          if (gameState !== 'playing') return;
+          e.preventDefault();
+          active = true;
+          updateCenter();
+          joy.setPointerCapture(e.pointerId);
+          setStick(e.clientX - centerX, e.clientY - centerY);
+        };
+
+        const move = (e) => {
+          if (!active) return;
+          e.preventDefault();
+          setStick(e.clientX - centerX, e.clientY - centerY);
+        };
+
+        const up = (e) => {
+          if (!active) return;
+          e.preventDefault();
+          active = false;
+          resetStick();
+          try { joy.releasePointerCapture(e.pointerId); } catch (_) {}
+        };
+
+        joy.addEventListener('pointerdown', down);
+        joy.addEventListener('pointermove', move);
+        joy.addEventListener('pointerup', up);
+        joy.addEventListener('pointercancel', up);
+      }
     }
   }
 
@@ -634,7 +732,12 @@ canvas { display: block; }
   function retryGame() {
     resetGameState();
     player.position.set(0, 0.5, -20);
-    player.rotation.y = 0;
+
+    // ★敵が前になる向き
+    playerFacingAngle = Math.PI;
+    cameraAngle = Math.PI;
+    player.rotation.y = Math.PI;
+
     enemy.position.set(0, 0.5, 20);
     enemy.rotation.y = 0;
     enemy.visible = true;
@@ -667,13 +770,11 @@ canvas { display: block; }
 
   // === UPDATE ===
   function updatePlayer(dt) {
-    // ★移動は「自分の向き」基準。
-    // これで ↓ でバックしても視点がグルグルしない。
+    // ★移動は「自分の向き」基準。↓でバックしても視点は回らない
     const forward = new THREE.Vector3(-Math.sin(playerFacingAngle), 0, -Math.cos(playerFacingAngle));
     const right = new THREE.Vector3(-forward.z, 0, forward.x);
 
     // ★旋回（ゆっくり）：Z/X のみ
-    // （矢印左右は「左右移動」に変えて、体感的に自然に）
     let turnInput = 0;
     if (keys['KeyZ']) turnInput += 1;
     if (keys['KeyX']) turnInput -= 1;
@@ -681,27 +782,26 @@ canvas { display: block; }
       playerFacingAngle += turnInput * PLAYER_TURN_SPEED * dt;
     }
 
-    // ★移動：矢印キーはそのまま左右に移動する
+    // ★移動：矢印 + ジョイスティック（iPad）
     const moveDir = new THREE.Vector3();
+
+    // Keyboard
     if (keys['KeyW'] || keys['ArrowUp']) moveDir.add(forward);
     if (keys['KeyS'] || keys['ArrowDown']) moveDir.sub(forward);
-
-    // ←/→ は「旋回」ではなくストレイフ（左右移動）
     if (keys['ArrowRight'] || keys['KeyE']) moveDir.add(right);
     if (keys['ArrowLeft']  || keys['KeyQ']) moveDir.sub(right);
 
-    // WASD での左右移動も残す（好みで）
-    if (keys['KeyX'] && (keys['KeyW'] || keys['KeyS'])) {
-      // X は旋回に使ってるので、斜め入力は矢印やQ/E推奨
-      // ここでは何もしない
-    }
-    if (keys['KeyZ'] && (keys['KeyW'] || keys['KeyS'])) {
-      // 同上
+    // Touch joystick (smooth)
+    if (Math.abs(touchMoveX) > 0.01 || Math.abs(touchMoveY) > 0.01) {
+      moveDir.add(right.clone().multiplyScalar(touchMoveX));
+      moveDir.add(forward.clone().multiplyScalar(touchMoveY));
     }
 
     if (moveDir.length() > 0.01) {
+      // 入力の強さで速度が変わる（アナログっぽい）
+      const mag = Math.min(1, moveDir.length());
       moveDir.normalize();
-      player.position.add(moveDir.multiplyScalar(PLAYER_SPEED * dt));
+      player.position.add(moveDir.multiplyScalar(PLAYER_SPEED * mag * dt));
     }
 
     // Apply facing rotation
