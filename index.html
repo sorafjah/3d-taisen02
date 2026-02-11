@@ -211,6 +211,61 @@ canvas { display: block; }
 @media (max-width: 900px) {
   .hp-container { width: 220px; }
 }
+
+/* === Weather Forecast Screen === */
+#weather-screen {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; justify-content: center; align-items: center; flex-direction: column;
+  background: rgba(0,0,0,0.92); z-index: 300; overflow-y: auto;
+  padding: 40px 20px;
+}
+#weather-screen h1 {
+  font-size: 42px; color: #00ccff; text-shadow: 0 0 30px #00ccff;
+  margin-bottom: 10px; letter-spacing: 6px;
+}
+#weather-screen .subtitle {
+  font-size: 14px; color: #ff3366; margin-bottom: 40px; letter-spacing: 3px;
+}
+#weather-container {
+  width: 90%; max-width: 900px; background: rgba(0, 20, 40, 0.5);
+  border: 2px solid rgba(0, 255, 200, 0.3); border-radius: 12px;
+  padding: 30px; backdrop-filter: blur(10px);
+}
+#chart-container {
+  position: relative; width: 100%; height: 400px; margin-bottom: 40px;
+  background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 20px;
+}
+#weather-table {
+  width: 100%; border-collapse: collapse; color: #fff;
+  font-size: 14px; margin-top: 20px;
+}
+#weather-table th {
+  background: rgba(0, 204, 255, 0.15); padding: 12px 8px;
+  border: 1px solid rgba(0, 204, 255, 0.3);
+  color: #00ccff; text-shadow: 0 0 8px #00ccff; letter-spacing: 1px;
+}
+#weather-table td {
+  padding: 10px 8px; text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+}
+#weather-table tr:hover td {
+  background: rgba(0, 255, 200, 0.08);
+}
+#weather-table .date-col { color: #00ffc8; }
+#weather-table .weather-col { color: #ffffff; }
+#weather-table .temp-high { color: #ff6666; font-weight: bold; }
+#weather-table .temp-low { color: #66ccff; font-weight: bold; }
+#close-weather-btn {
+  margin-top: 30px; padding: 12px 40px; font-size: 18px;
+  font-family: 'Courier New', monospace;
+  background: transparent; color: #00ffc8; border: 2px solid #00ffc8;
+  cursor: pointer; letter-spacing: 3px; transition: all 0.3s;
+  border-radius: 6px;
+}
+#close-weather-btn:hover {
+  background: #00ffc8; color: #000; box-shadow: 0 0 20px #00ffc8;
+}
 </style>
 </head>
 <body>
@@ -287,7 +342,73 @@ canvas { display: block; }
   <button id="retry-btn">RETRY</button>
 </div>
 
+<div id="weather-screen">
+  <h1>OSAKA WEATHER</h1>
+  <div class="subtitle">7-DAY FORECAST</div>
+  <div id="weather-container">
+    <div id="chart-container">
+      <canvas id="weather-chart"></canvas>
+    </div>
+    <table id="weather-table">
+      <thead>
+        <tr>
+          <th>日付</th>
+          <th>天気</th>
+          <th>最高気温</th>
+          <th>最低気温</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="date-col">2/12</td>
+          <td class="weather-col">☁️ 曇り</td>
+          <td class="temp-high">10°C</td>
+          <td class="temp-low">2°C</td>
+        </tr>
+        <tr>
+          <td class="date-col">2/13</td>
+          <td class="weather-col">☀️ 晴れ</td>
+          <td class="temp-high">11°C</td>
+          <td class="temp-low">4°C</td>
+        </tr>
+        <tr>
+          <td class="date-col">2/14</td>
+          <td class="weather-col">☁️ 曇り</td>
+          <td class="temp-high">10°C</td>
+          <td class="temp-low">5°C</td>
+        </tr>
+        <tr>
+          <td class="date-col">2/15</td>
+          <td class="weather-col">☁️ 曇り</td>
+          <td class="temp-high">12°C</td>
+          <td class="temp-low">6°C</td>
+        </tr>
+        <tr>
+          <td class="date-col">2/16</td>
+          <td class="weather-col">☀️ 晴れ</td>
+          <td class="temp-high">14°C</td>
+          <td class="temp-low">6°C</td>
+        </tr>
+        <tr>
+          <td class="date-col">2/17</td>
+          <td class="weather-col">☁️ 曇り</td>
+          <td class="temp-high">12°C</td>
+          <td class="temp-low">5°C</td>
+        </tr>
+        <tr>
+          <td class="date-col">2/18</td>
+          <td class="weather-col">🌧️ 雨</td>
+          <td class="temp-high">11°C</td>
+          <td class="temp-low">3°C</td>
+        </tr>
+      </tbody>
+    </table>
+    <button id="close-weather-btn">CLOSE</button>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 (function() {
   'use strict';
@@ -1058,6 +1179,112 @@ canvas { display: block; }
   }
 
   init();
+
+  // === WEATHER CHART ===
+  const weatherCtx = document.getElementById('weather-chart');
+  if (weatherCtx) {
+    new Chart(weatherCtx, {
+      type: 'line',
+      data: {
+        labels: ['2/12', '2/13', '2/14', '2/15', '2/16', '2/17', '2/18'],
+        datasets: [
+          {
+            label: '最高気温',
+            data: [10, 11, 10, 12, 14, 12, 11],
+            borderColor: '#ff6666',
+            backgroundColor: 'rgba(255, 102, 102, 0.1)',
+            borderWidth: 3,
+            tension: 0.4,
+            pointRadius: 6,
+            pointBackgroundColor: '#ff6666',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 8
+          },
+          {
+            label: '最低気温',
+            data: [2, 4, 5, 6, 6, 5, 3],
+            borderColor: '#66ccff',
+            backgroundColor: 'rgba(102, 204, 255, 0.1)',
+            borderWidth: 3,
+            tension: 0.4,
+            pointRadius: 6,
+            pointBackgroundColor: '#66ccff',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 8
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              color: '#ffffff',
+              font: { size: 14, family: "'Courier New', monospace" },
+              padding: 20,
+              usePointStyle: true
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: '#00ffc8',
+            bodyColor: '#ffffff',
+            borderColor: '#00ffc8',
+            borderWidth: 1,
+            padding: 12,
+            displayColors: true,
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': ' + context.parsed.y + '°C';
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            min: 0,
+            max: 16,
+            ticks: {
+              color: '#ffffff',
+              font: { size: 12, family: "'Courier New', monospace" },
+              stepSize: 2,
+              callback: function(value) {
+                return value + '°C';
+              }
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)',
+              borderColor: 'rgba(0, 255, 200, 0.3)'
+            }
+          },
+          x: {
+            ticks: {
+              color: '#ffffff',
+              font: { size: 12, family: "'Courier New', monospace" }
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)',
+              borderColor: 'rgba(0, 255, 200, 0.3)'
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Close weather screen button
+  const closeWeatherBtn = document.getElementById('close-weather-btn');
+  if (closeWeatherBtn) {
+    closeWeatherBtn.addEventListener('click', () => {
+      document.getElementById('weather-screen').style.display = 'none';
+    });
+  }
 })();
 </script>
 </body>
